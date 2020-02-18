@@ -11,8 +11,14 @@ Ext.define('CustomAgile.ui.renderer.RecordFieldRendererFactory', {
         if (_.isUndefined(val) || val === null) {
             val = "";
         }
+        else if (typeof val === 'boolean') {
+            val = val.toString();
+        }
         else if (Ext.isDate(val)) {
             val = Rally.util.DateTime.formatWithDefaultDateTime(val);
+        }
+        else if (field === 'Parent') {
+            val = (val && val.Parent && val.Parent._refObjectName) || (record.get('Feature') && record.get('Feature')._refObjectName) || 'No Parent';
         }
         else if (field === 'Release') {
             val = (val && val.Name) || 'Unscheduled';
@@ -23,17 +29,6 @@ Ext.define('CustomAgile.ui.renderer.RecordFieldRendererFactory', {
         else if (field === 'Project') {
             val = (val && val.Name) || 'Failed to convert project field';
         }
-        // else if (field === 'Collaborators') {
-        //     if (val && val.length) {
-        //         val = _.map(val, (u) => {
-        //             return u.DisplayName || `${u.FirstName} ${u.LastName}`;
-        //         });
-        //         val = val.join(d);
-        //     }
-        //     else {
-        //         val = 'None';
-        //     }
-        // }
         else if (field === 'Predecessors' || field === 'Successors') {
             val = _.map(val, (r) => {
                 let release = r.get('Release');
@@ -70,7 +65,7 @@ Ext.define('CustomAgile.ui.renderer.RecordFieldRendererFactory', {
                 val = val.join(d);
             }
             else {
-                val = val.Name || val.value || 'Unable to convert field for export';
+                val = val.Name || val.value || val._refObjectName || 'Unable to convert field for export';
             }
         }
         else if (_.isArray(val)) {
