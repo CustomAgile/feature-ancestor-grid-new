@@ -349,8 +349,7 @@ Ext.define("feature-ancestor-grid", {
                 },
                 columnCfgs: this.getColumnConfigs(),
                 derivedColumns: this.getDerivedColumns()
-            },
-            height: this.getHeight()
+            }
         });
     },
     getGridPlugins: function () {
@@ -457,8 +456,7 @@ Ext.define("feature-ancestor-grid", {
             columns = Ext.Array.merge(additionalFields, derivedFields);
 
         var fetch = _.pluck(additionalFields, 'dataIndex');
-        fetch.push('ObjectID');
-        fetch.push('Parent');
+        fetch = fetch.concat(['ObjectID', 'Parent', 'DisplayName', 'FirstName', 'LastName']);
         this.setLoading('Loading data to export...');
         this.logger.log('columns', columnCfgs);
         this.fetchWsapiRecords({
@@ -499,10 +497,8 @@ Ext.define("feature-ancestor-grid", {
                 record = records[i];
 
             for (var j = 0; j < fetchList.length; j++) {
-                var val = record.get(fetchList[j]);
-                if (Ext.isObject(val)) {
-                    val = val.FormattedID || val._refObjectName;
-                }
+                var val = CustomAgile.ui.renderer.RecordFieldRendererFactory.getFieldDisplayValue(record, fetchList[j], '; ');
+
                 row.push(val || "");
             }
 
