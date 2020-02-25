@@ -125,6 +125,10 @@ Ext.define("feature-ancestor-grid", {
         }
         return [];
     },
+    onTimeboxScopeChange: function () {
+        this.callParent(arguments);
+        this._buildGridboardStore();
+    },
     getFilters: async function () {
         let filters = this.getQueryFilter();
         let ancestorAndMultiFilters = await this.ancestorFilterPlugin.getAllFiltersForType(this.getFeatureTypePath(), true).catch((e) => {
@@ -132,6 +136,11 @@ Ext.define("feature-ancestor-grid", {
             this.setLoading(false);
             return;
         });
+
+        let timeboxScope = this.getContext().getTimeboxScope();
+        if (timeboxScope) {
+            filters.push(timeboxScope.getQueryFilter());
+        }
 
         if (ancestorAndMultiFilters) {
             filters = filters.concat(ancestorAndMultiFilters);
