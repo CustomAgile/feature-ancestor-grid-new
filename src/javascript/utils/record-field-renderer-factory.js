@@ -18,7 +18,7 @@ Ext.define('CustomAgile.ui.renderer.RecordFieldRendererFactory', {
             val = Rally.util.DateTime.formatWithDefaultDateTime(val);
         }
         else if (field === 'Parent') {
-            val = (val && val.Parent && val.Parent._refObjectName) || (record.get('Feature') && record.get('Feature')._refObjectName) || 'No Parent';
+            val = (val && (val.FormattedID && val.Name && val.FormattedID + ': ' + val.Name) || val._refObjectName) || (record.get('Feature') && ((record.get('Feature').FormattedID && record.get('Feature').Name && record.get('Feature').FormattedID + ': ' + record.get('Feature').Name) || record.get('Feature')._refObjectName)) || 'No Parent';
         }
         else if (field === 'Release') {
             val = (val && val.Name) || 'Unscheduled';
