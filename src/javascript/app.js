@@ -55,7 +55,7 @@ Ext.define("feature-ancestor-grid", {
             ptype: 'UtilsAncestorPiAppFilter',
             pluginId: 'ancestorFilterPlugin',
             settingsConfig: {},
-            whiteListFields: ['Tags', 'Milestones', 'c_EnterpriseApprovalEA'],
+            whiteListFields: ['Tags', 'Milestones', 'c_EnterpriseApprovalEA', 'c_EAEpic'],
             filtersHidden: false,
             visibleTab: 'portfolioitem/feature',
             listeners: {
