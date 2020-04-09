@@ -1,6 +1,6 @@
 {
   "name": "feature-ancestor-grid",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "scripts": {
     "debug": "grunt debug",
     "debug:watch": "nodemon --exec grunt debug",
@@ -9,7 +9,9 @@
     "deploy-debugsdk:watch": "nodemon --exec grunt deploy-debugsdk"
   },
   "dependencies": {
-    "@customagile/ancestor-pi-multi-level-pi-app-filter": "git+https://github.com/CustomAgile/utils-ancestor-pi-app-filter.git"
+    "@customagile/ancestor-pi-multi-level-pi-app-filter": "git+https://github.com/CustomAgile/utils-ancestor-pi-app-filter.git",
+    "@customagile/utils-field-renderer": "git+https://github.com/CustomAgile/utils-field-renderer.git",
+    "field-renderer": "git+https://github.com/CustomAgile/utils-field-renderer.git"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

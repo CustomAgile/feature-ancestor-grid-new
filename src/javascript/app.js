@@ -55,7 +55,7 @@ Ext.define("feature-ancestor-grid", {
             ptype: 'UtilsAncestorPiAppFilter',
             pluginId: 'ancestorFilterPlugin',
             settingsConfig: {},
-            whiteListFields: ['Tags', 'Milestones', 'c_EnterpriseApprovalEA', 'c_EAEpic'],
+            whiteListFields: ['Tags', 'Milestones', 'c_EnterpriseApprovalEA', 'c_EAEpic', 'DisplayColor'],
             filtersHidden: false,
             visibleTab: 'portfolioitem/feature',
             listeners: {
@@ -506,7 +506,7 @@ Ext.define("feature-ancestor-grid", {
                 record = records[i];
 
             for (var j = 0; j < fetchList.length; j++) {
-                var val = CustomAgile.ui.renderer.RecordFieldRendererFactory.getFieldDisplayValue(record, fetchList[j], '; ');
+                var val = CustomAgile.ui.renderer.RecordFieldRendererFactory.getFieldDisplayValue(record, fetchList[j], '; ', true);
 
                 row.push(val || "");
             }
