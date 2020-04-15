@@ -191,15 +191,15 @@ Ext.define("feature-ancestor-grid", {
             if (featureParent) {
                 var objID = featureParent.ObjectID;
                 var featureParentObj = featureHash[objID];
-                for (var i = 1; i < this.ancestorNames.length; i++) {
+                if (this.ancestorNames[1]) {
+                    record.set(this.ancestorNames[1].toLowerCase(), featureParentObj || null);
+                }
+
+                for (var i = 2; i < this.ancestorNames.length; i++) {
                     var name = this.ancestorNames[i].toLowerCase();
 
-                    if (featureParentObj) {
-                        if (featureParentObj[name]) {
-                            record.set(name, featureParentObj[name]);
-                        } else {
-                            record.set(name, featureParentObj);
-                        }
+                    if (featureParentObj && featureParentObj[name]) {
+                        record.set(name, featureParentObj[name]);
                     } else {
                         record.set(name, null);
                     }
@@ -499,7 +499,7 @@ Ext.define("feature-ancestor-grid", {
             headers.push(d.text);
         });
 
-        var csv = [headers.join(',')];
+        var csv = [headers];
 
         for (var i = 0; i < records.length; i++) {
             var row = [],
@@ -520,10 +520,9 @@ Ext.define("feature-ancestor-grid", {
                 }
             });
 
-            row = _.map(row, function (v) { return Ext.String.format("\"{0}\"", v.toString().replace(/"/g, "\"\"")); });
-            csv.push(row.join(","));
+            csv.push(row);
         }
-        return csv.join("\r\n");
+        return Papa.unparse(csv);
     },
 
     getColumnConfigs: function () {

@@ -11,6 +11,7 @@
         "src/javascript/utils/overrides.js",
         "node_modules/@customagile/ancestor-pi-multi-level-pi-app-filter/index.js",
         "node_modules/@customagile/utils-field-renderer/field-renderer.js",
+        "node_modules/papaparse/papaparse.min.js",
         "src/javascript/app.js"
     ],
     "css": [
