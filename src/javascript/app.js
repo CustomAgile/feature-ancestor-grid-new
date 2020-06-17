@@ -2,7 +2,7 @@ Ext.define("feature-ancestor-grid", {
     extend: 'Rally.app.App',
     componentCls: 'app',
     logger: new Rally.technicalservices.Logger(),
-    defaults: { margin: 10 },
+    defaults: { margin: 5 },
 
     integrationHeaders: {
         name: "feature-ancestor-grid"
@@ -26,7 +26,7 @@ Ext.define("feature-ancestor-grid", {
             layout: {
                 type: 'hbox',
                 align: 'middle',
-                defaultMargins: '0 10 10 0',
+                defaultMargins: '0 10 3 0',
             }
         }, {
             id: Utils.AncestorPiAppFilter.PANEL_RENDER_AREA_ID,
@@ -34,7 +34,7 @@ Ext.define("feature-ancestor-grid", {
             layout: {
                 type: 'hbox',
                 align: 'middle',
-                defaultMargins: '0 10 10 0',
+                defaultMargins: '0 10 0 0',
             }
         }, {
             id: 'grid-area',
@@ -54,9 +54,6 @@ Ext.define("feature-ancestor-grid", {
         this.ancestorFilterPlugin = Ext.create('Utils.AncestorPiAppFilter', {
             ptype: 'UtilsAncestorPiAppFilter',
             pluginId: 'ancestorFilterPlugin',
-            settingsConfig: {},
-            whiteListFields: ['Tags', 'Milestones', 'c_EnterpriseApprovalEA', 'c_EAEpic', 'DisplayColor'],
-            filtersHidden: false,
             visibleTab: 'portfolioitem/feature',
             listeners: {
                 scope: this,
@@ -75,26 +72,15 @@ Ext.define("feature-ancestor-grid", {
                             this.initializeApp();
                         },
                         failure(msg) {
-                            this.showErrorNotification(msg);
+                            this.showError(msg);
                         },
                     });
                 },
             }
         });
         this.addPlugin(this.ancestorFilterPlugin);
-
-        // this.fetchPortfolioItemTypes().then({
-        //     success: this.initializeApp,
-        //     failure: this.showErrorNotification,
-        //     scope: this
-        // });
-
     },
-    showErrorNotification: function (msg) {
-        Rally.ui.notify.Notifier.showError({
-            message: msg
-        });
-    },
+
     initializeApp: function () {
         this.portfolioItemTypeDefs = _.map(this.portfolioItemTypes, function (p) { return p.getData(); });
         this.ancestorNames = _.map(this.getPortfolioItemTypePaths(), function (pi) {
@@ -132,7 +118,7 @@ Ext.define("feature-ancestor-grid", {
     getFilters: async function () {
         let filters = this.getQueryFilter();
         let ancestorAndMultiFilters = await this.ancestorFilterPlugin.getAllFiltersForType(this.getFeatureTypePath(), true).catch((e) => {
-            this.showErrorNotification(e.message || e);
+            this.showError(e);
             this.setLoading(false);
             return;
         });
@@ -169,7 +155,7 @@ Ext.define("feature-ancestor-grid", {
             success: function (store) {
                 this._addGridboard(store, filters, dataContext);
             },
-            failure: this.showErrorNotification,
+            failure: this.showError,
             scope: this
         });
     },
@@ -289,7 +275,7 @@ Ext.define("feature-ancestor-grid", {
             success: function (results) {
                 deferred.resolve(results);
             },
-            failure: this.showErrorNotification,
+            failure: this.showError,
             scope: this
         }).always(function () {
             this.setLoading(false);
@@ -326,7 +312,7 @@ Ext.define("feature-ancestor-grid", {
                     this.updateFeatureHashWithWsapiRecords(results);
                     this.setAncestors(records);
                 },
-                failure: this.showErrorNotification,
+                failure: this.showError,
                 scope: this
             });
         } else {
@@ -482,7 +468,7 @@ Ext.define("feature-ancestor-grid", {
                 var filename = Ext.String.format("export-{0}.csv", Ext.Date.format(new Date(), "Y-m-d-h-i-s"));
                 CArABU.technicalservices.FileUtilities.saveCSVToFile(csv, filename);
             },
-            failure: this.showErrorNotification,
+            failure: this.showError,
             scope: this
         }).always(function () { this.setLoading(false); }, this);
     },
@@ -625,6 +611,34 @@ Ext.define("feature-ancestor-grid", {
 
     searchAllProjects() {
         return this.ancestorFilterPlugin.getIgnoreProjectScope();
+    },
+
+    showError(msg, defaultMessage) {
+        Rally.ui.notify.Notifier.showError({ message: this.parseError(msg, defaultMessage) });
+    },
+
+    parseError(e, defaultMessage) {
+        defaultMessage = defaultMessage || 'An unknown error has occurred';
+
+        if (typeof e === 'string' && e.length) {
+            return e;
+        }
+        if (e.message && e.message.length) {
+            return e.message;
+        }
+        if (e.exception && e.error && e.error.errors && e.error.errors.length) {
+            if (e.error.errors[0].length) {
+                return e.error.errors[0];
+            } else {
+                if (e.error && e.error.response && e.error.response.status) {
+                    return `${defaultMessage} (Status ${e.error.response.status})`;
+                }
+            }
+        }
+        if (e.exceptions && e.exceptions.length && e.exceptions[0].error) {
+            return e.exceptions[0].error.statusText;
+        }
+        return defaultMessage;
     },
 
     //onSettingsUpdate:  Override
