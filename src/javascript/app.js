@@ -58,23 +58,15 @@ Ext.define("feature-ancestor-grid", {
             listeners: {
                 scope: this,
                 ready(plugin) {
-                    Rally.data.util.PortfolioItemHelper.getPortfolioItemTypes().then({
+                    this.portfolioItemTypes = plugin.portfolioItemTypes;
+
+                    plugin.addListener({
                         scope: this,
-                        success(portfolioItemTypes) {
-                            this.portfolioItemTypes = _.sortBy(portfolioItemTypes, type => type.get('Ordinal'));
-
-                            plugin.addListener({
-                                scope: this,
-                                select: this._buildGridboardStore,
-                                change: this._buildGridboardStore
-                            });
-
-                            this.initializeApp();
-                        },
-                        failure(msg) {
-                            this.showError(msg);
-                        },
+                        select: this._buildGridboardStore,
+                        change: this._buildGridboardStore
                     });
+
+                    this.initializeApp();
                 },
             }
         });
@@ -107,7 +99,7 @@ Ext.define("feature-ancestor-grid", {
         var query = this.getSetting('query');
         if (query && query.length > 0) {
             this.logger.log('getQueryFilter', Rally.data.wsapi.Filter.fromQueryString(query));
-            return Rally.data.wsapi.Filter.fromQueryString(query);
+            return [Rally.data.wsapi.Filter.fromQueryString(query)];
         }
         return [];
     },
@@ -123,13 +115,13 @@ Ext.define("feature-ancestor-grid", {
             return;
         });
 
+        if (ancestorAndMultiFilters) {
+            filters = filters.concat(ancestorAndMultiFilters);
+        }
+
         let timeboxScope = this.getContext().getTimeboxScope();
         if (timeboxScope) {
             filters.push(timeboxScope.getQueryFilter());
-        }
-
-        if (ancestorAndMultiFilters) {
-            filters = filters.concat(ancestorAndMultiFilters);
         }
 
         return filters;
@@ -137,6 +129,7 @@ Ext.define("feature-ancestor-grid", {
     _buildGridboardStore: async function () {
         this.logger.log('_buildGridboardStore');
         this.down('#grid-area').removeAll();
+        this.setLoading(true);
         let filters = await this.getFilters();
         let dataContext = this.getContext().getDataContext();
         if (this.searchAllProjects()) {

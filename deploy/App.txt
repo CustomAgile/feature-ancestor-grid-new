@@ -2,14 +2,14 @@
 <html>
 
 <head>
-    <title>feature-ancestor-grid-1.0.7</title>
+    <title>feature-ancestor-grid-1.1.0</title>
     <!--  (c) 2020 Custom Agile.  All Rights Reserved. -->
-    <!--  Build Date: Wed Jun 17 2020 16:55:01 GMT-0400 (Eastern Daylight Time) -->
+    <!--  Build Date: Tue Sep 29 2020 11:37:21 GMT-0400 (Eastern Daylight Time) -->
     <!--  Repository: https://github.com/CustomAgile/feature-ancestor-grid -->
 
     <script type="text/javascript">
-        var APP_BUILD_DATE = "Wed Jun 17 2020 16:55:01 GMT-0400 (Eastern Daylight Time)";
-        var CHECKSUM = 471094273885;
+        var APP_BUILD_DATE = "Tue Sep 29 2020 11:37:21 GMT-0400 (Eastern Daylight Time)";
+        var CHECKSUM = 469663719799;
     </script>
 
     <script type="text/javascript" src="/apps/2.1/sdk.js"></script>
@@ -3008,23 +3008,15 @@ Ext.define("feature-ancestor-grid", {
             listeners: {
                 scope: this,
                 ready(plugin) {
-                    Rally.data.util.PortfolioItemHelper.getPortfolioItemTypes().then({
+                    this.portfolioItemTypes = plugin.portfolioItemTypes;
+
+                    plugin.addListener({
                         scope: this,
-                        success(portfolioItemTypes) {
-                            this.portfolioItemTypes = _.sortBy(portfolioItemTypes, type => type.get('Ordinal'));
-
-                            plugin.addListener({
-                                scope: this,
-                                select: this._buildGridboardStore,
-                                change: this._buildGridboardStore
-                            });
-
-                            this.initializeApp();
-                        },
-                        failure(msg) {
-                            this.showError(msg);
-                        },
+                        select: this._buildGridboardStore,
+                        change: this._buildGridboardStore
                     });
+
+                    this.initializeApp();
                 },
             }
         });
@@ -3057,7 +3049,7 @@ Ext.define("feature-ancestor-grid", {
         var query = this.getSetting('query');
         if (query && query.length > 0) {
             this.logger.log('getQueryFilter', Rally.data.wsapi.Filter.fromQueryString(query));
-            return Rally.data.wsapi.Filter.fromQueryString(query);
+            return [Rally.data.wsapi.Filter.fromQueryString(query)];
         }
         return [];
     },
@@ -3073,13 +3065,13 @@ Ext.define("feature-ancestor-grid", {
             return;
         });
 
+        if (ancestorAndMultiFilters) {
+            filters = filters.concat(ancestorAndMultiFilters);
+        }
+
         let timeboxScope = this.getContext().getTimeboxScope();
         if (timeboxScope) {
             filters.push(timeboxScope.getQueryFilter());
-        }
-
-        if (ancestorAndMultiFilters) {
-            filters = filters.concat(ancestorAndMultiFilters);
         }
 
         return filters;
@@ -3087,6 +3079,7 @@ Ext.define("feature-ancestor-grid", {
     _buildGridboardStore: async function () {
         this.logger.log('_buildGridboardStore');
         this.down('#grid-area').removeAll();
+        this.setLoading(true);
         let filters = await this.getFilters();
         let dataContext = this.getContext().getDataContext();
         if (this.searchAllProjects()) {
