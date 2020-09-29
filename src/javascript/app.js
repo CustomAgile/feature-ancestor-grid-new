@@ -284,6 +284,7 @@ Ext.define("feature-ancestor-grid", {
 
         if (records.length === 0 || records[0].get('_type').toLowerCase() !== this.getFeatureTypePath().toLowerCase()) {
             console.log('Update Features method. No records found or type doesnt match');
+            this.setLoading(false);
             return;
         }
         var featureParentHash = this.getFeatureAncestorHash(),
@@ -607,6 +608,7 @@ Ext.define("feature-ancestor-grid", {
     },
 
     showError(msg, defaultMessage) {
+        this.setLoading(false);
         Rally.ui.notify.Notifier.showError({ message: this.parseError(msg, defaultMessage) });
     },
 
