@@ -311,6 +311,7 @@ Ext.define("feature-ancestor-grid", {
             });
         } else {
             this.setAncestors(records);
+            this.setLoading(false);
         }
     },
     _addGridboard: function (store, filters, dataContext) {
